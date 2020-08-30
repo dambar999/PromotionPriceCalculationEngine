@@ -10,7 +10,6 @@ public class CDfor30 implements  MultipleSKUOfferI {
         double totalPrice;
         int item1Quantity= item1.getQuantity();
         int item2Quantity= item2.getQuantity();
-    // int smaller =item1.getQuantity()>item2.getQuantity()?   item2.getQuantity():item1.getQuantity();
       if(item2Quantity==item1Quantity){
           totalPrice=item2Quantity*30;
      }

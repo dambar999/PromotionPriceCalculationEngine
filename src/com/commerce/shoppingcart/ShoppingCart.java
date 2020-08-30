@@ -28,57 +28,53 @@ public class ShoppingCart {
 
      static double totalPrice;
 
-    public   static void checkout(Promotion promotion){
-        List<Item> itemsCopy= items;
+    public   static void checkout(Promotion promotion) {
+        List<Item> itemsCopy = items;
 
         //apply promotion on single sku and add to totalprice on cart
-        for(int i=0;i<items.size();i++){
-            String ProductId=items.get(i).getProduct().getProductName();
-                if (promotion.getCurrentPromotion().containsKey(ProductId)){
-                        SingleOfferI singleOfferI= offerMaping.get(promotion.getCurrentPromotion().get(ProductId));
+        for (int i = 0; i < items.size(); i++) {
+            String ProductId = items.get(i).getProduct().getProductName();
+            if (promotion.getCurrentPromotion().containsKey(ProductId)) {
+                SingleOfferI singleOfferI = offerMaping.get(promotion.getCurrentPromotion().get(ProductId));
 
-                    totalPrice=totalPrice+singleOfferI.calculatePrice(items.get(i));
+                totalPrice = totalPrice + singleOfferI.calculatePrice(items.get(i));
+            }
+        }
+            String key;
+
+            //apply promotion on multiple sku
+            for (Map.Entry<String, DiscountType> entry : promotion.getCurrentPromotion().entrySet()) {
+                Item itemFirst = null;
+                Item itemSec = null;
+                key = entry.getKey();
+                if (key.contains("-")) {
+                    MultipleSKUOfferI multipleSKUOfferI = offerMapingMultiple.get(promotion.getCurrentPromotion().get(key));
+                    if (itemsCopy.size() > 3) {
+                        String spl[] = key.split("-");
+                        //here items is search by splitting key
+                        for (int j = 0; j < itemsCopy.size(); j++) {
+                            if (itemsCopy.get(j).getProduct().getProductName().equals(spl[0])) {
+                                itemFirst = itemsCopy.get(j);
+                            } else if (itemsCopy.get(j).getProduct().getProductName().equals(spl[1])) {
+                                itemSec = itemsCopy.get(j);
+                            }
+                        }
+                        totalPrice = totalPrice + multipleSKUOfferI.calculatePrice(itemFirst, itemSec);
+
+                    } else {
+                        totalPrice = totalPrice + itemsCopy.get(2).getProduct().getUnitPrice() * itemsCopy.get(2).getQuantity();
+                    }
+
                 }
-           // itemsCopy.remove(i);
-        }
-        String  key;
 
-        //apply promotion on multiple sku
-        //
-        for (Map.Entry<String, DiscountType> entry : promotion.getCurrentPromotion().entrySet())
-        {
-            Item itemFirst=null;
-            Item itemSec=null;
-            key=entry.getKey();
-             if (key.contains("-")){
-                 MultipleSKUOfferI multipleSKUOfferI = offerMapingMultiple.get(promotion.getCurrentPromotion().get(key));
-                 if(itemsCopy.size()>3){
-                     String spl[]= key.split("-");
-                     //here items can be search by splitting key
-                     for(int i=0;i<itemsCopy.size();i++){
-                         if(itemsCopy.get(i).getProduct().getProductName().equals(spl[0])){
-                             itemFirst=itemsCopy.get(i);
-                         }else if(itemsCopy.get(i).getProduct().getProductName().equals(spl[1])){
-                             itemSec= itemsCopy.get(i);
-                         }
-                     }
-                     totalPrice = totalPrice + multipleSKUOfferI.calculatePrice(itemFirst, itemSec);
 
-                 }else{
-                     totalPrice=totalPrice+itemsCopy.get(2).getProduct().getUnitPrice()*itemsCopy.get(2).getQuantity();
-                 }
-
-              }
+            }
 
 
 
-        }
+    }
 
-        }
-
-
-
-    public static void main(String []args){
+    public static void main(String [] args){
 
         offerMaping.put(DiscountType.A3for130,new A3for130());
         offerMaping.put(DiscountType.B2for45,new B2for45());
@@ -112,9 +108,7 @@ public class ShoppingCart {
         items.add(item2);
         items.add(item3);
        // items.add(item4);
-        System.out.println(items.size());
 
-        double fianlPrice;
         Promotion promotion =new Promotion();
         promotion.setCurrentPromotion();
          checkout(promotion);
